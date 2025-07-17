@@ -15,7 +15,7 @@ struct patient {
     int age;
     char disease[50];
     char city[30];
-    char mobile[91];
+    char mobile[10];
     char doctor[50];
 };
 
@@ -33,7 +33,8 @@ void getCurrentDate(char *date) {
     sprintf(date, "%02d-%02d-%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
 }
 
-void BillBana(struct patient pat, char date[30]) {
+// Prints the bill header with patient and hospital details
+void PrintBillHeader(struct patient pat, char date[30]) {
     printf("\n\n");
     printf("\t\t\tHospital Management System\t\t\t");
     printf("\n----------------------------------------------------------------------------");
@@ -49,7 +50,8 @@ void BillBana(struct patient pat, char date[30]) {
     printf("\n----------------------------------------------------------------------------");
 }
 
-void Kaisa_Banau_Bill(char item[20], int qty, float price, time_t timestamp) {
+// Prints each bill item line
+void PrintBillItem(char item[20], int qty, float price, time_t timestamp) {
     char time_str[50];
     struct tm *tm_info;
 
@@ -59,19 +61,20 @@ void Kaisa_Banau_Bill(char item[20], int qty, float price, time_t timestamp) {
     printf("\n%-15s %-10d      %-10.2f %s", item, qty, qty*price, time_str);
 }
 
-void Dekh_Bill(float total) {
-    float dis = 0.1 * total;
-    float nettotal = total - dis;
-    float gst = 0.12 * nettotal;
-    float grandtotal = nettotal + gst;
+// Prints the summary of the bill with subtotal, discount, GST and grand total
+void PrintBillSummary(float total) {
+    float discount = 0.1 * total;
+    float netTotal = total - discount;
+    float gst = 0.12 * netTotal;
+    float grandTotal = netTotal + gst;
 
     printf("\n----------------------------------------------------------------------------");
     printf("\nSub Total: \t\t%.2f", total);
-    printf("\nDiscount @10%%:      \t%.2f", dis);
-    printf("\nNet Total: \t\t%.2f", nettotal);
+    printf("\nDiscount @10%%:      \t%.2f", discount);
+    printf("\nNet Total: \t\t%.2f", netTotal);
     printf("\nGST @12%%: \t\t%.2f", gst);
     printf("\n----------------------------------------------------------------------------");
-    printf("\nGrand Total: \t\t%.2f", grandtotal);
+    printf("\nGrand Total: \t\t%.2f", grandTotal);
     printf("\n----------------------------------------------------------------------------");
 }
 
@@ -141,11 +144,11 @@ int main() {
                     total += ord.itm[i].qty * ord.itm[i].price;
                 }
 
-                BillBana(ord.pat, ord.date);
+                PrintBillHeader(ord.pat, ord.date);
                 for (int i = 0; i < ord.numofItems; ++i) {
-                    Kaisa_Banau_Bill(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price, ord.itm[i].timestamp);
+                    PrintBillItem(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price, ord.itm[i].timestamp);
                 }
-                Dekh_Bill(total);
+                PrintBillSummary(total);
 
                 printf("\nDo you want to save the invoice [y/n]: ");
                 scanf(" %c", &saveBill);
@@ -174,12 +177,12 @@ int main() {
                 printf("\n******************** Previous Invoices ********************");
                 while (fread(&ord, sizeof(struct order), 1, fp)) {
                     float tot = 0;
-                    BillBana(ord.pat, ord.date);
+                    PrintBillHeader(ord.pat, ord.date);
                     for (int i = 0; i < ord.numofItems; i++) {
-                        Kaisa_Banau_Bill(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price, ord.itm[i].timestamp);
+                        PrintBillItem(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price, ord.itm[i].timestamp);
                         tot += ord.itm[i].qty * ord.itm[i].price;
                     }
-                    Dekh_Bill(tot);
+                    PrintBillSummary(tot);
                 }
                 fclose(fp);
                 break;
@@ -199,12 +202,12 @@ int main() {
                 while (fread(&ord, sizeof(struct order), 1, fp)) {
                     float tot = 0;
                     if (strcmp(ord.pat.name, input_name) == 0) {
-                        BillBana(ord.pat, ord.date);
+                        PrintBillHeader(ord.pat, ord.date);
                         for (int i = 0; i < ord.numofItems; i++) {
-                            Kaisa_Banau_Bill(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price, ord.itm[i].timestamp);
+                            PrintBillItem(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price, ord.itm[i].timestamp);
                             tot += ord.itm[i].qty * ord.itm[i].price;
                         }
-                        Dekh_Bill(tot);
+                        PrintBillSummary(tot);
                         found = 1;
                         break;
                     }
